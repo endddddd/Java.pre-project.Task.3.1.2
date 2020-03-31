@@ -33,13 +33,29 @@ public class UserServiceImp implements UserService, UserDetailsService {
                 user.getEmail().trim().length() == 0 || user.getLastName().trim().length() == 0 || role.trim().length() == 0) {
             return false;
         } else {
-            Set<Role> roles = new HashSet<>();
-            roles.add(new Role(role));
-            user.setRoles(roles);
+            user.setRoles(getRoleForUser(role));
             dao.addUser(user);
             return true;
         }
     }
+
+    // Распределяем роли для пользователя, одна или две
+    @Transactional
+    @Override
+    public Set<Role> getRoleForUser(String role) {
+        Set<Role> roles = new HashSet<>();
+        try {
+            String[] partsRole = role.split(",");
+            roles.add(new Role(partsRole[1]));
+            roles.add(new Role(partsRole[0]));
+            return roles;
+        } catch (Exception e) {
+
+        }
+        roles.add(new Role(role));
+        return roles;
+    }
+
 
     @Transactional
     @Override
@@ -51,12 +67,10 @@ public class UserServiceImp implements UserService, UserDetailsService {
     @Override
     public boolean updateUser(User user, String role) {
         if (user.getUsername().trim().length() == 0 || user.getPassword().trim().length() == 0 ||
-                user.getEmail().trim().length() == 0 || user.getLastName().trim().length() == 0) {
+                user.getEmail().trim().length() == 0 || user.getLastName().trim().length() == 0 || role.trim().length() == 0) {
             return false;
         } else {
-            Set<Role> roles = new HashSet<>();
-            roles.add(new Role(role));
-            user.setRoles(roles);
+            user.setRoles(getRoleForUser(role));
             dao.updateUser(user);
             return true;
         }
@@ -97,11 +111,11 @@ public class UserServiceImp implements UserService, UserDetailsService {
             Set<Role> admin = new HashSet<>();
             admin.add(new Role("ADMIN"));
             admin.add(new Role("USER"));
-            dao.addUser(new User("Кларк", "admin", "Кент", "admin@mail.com", 30, admin));
+            dao.addUser(new User("Брюс", "admin", "Уэйн", "admin@mail.com", 30, admin));
 
             Set<Role> user = new HashSet<>();
             user.add(new Role("ADMIN"));
-            dao.addUser(new User("Лекс", "user", "Лютэр", "user@mail.com", 28, user));
+            dao.addUser(new User("Джокер", "user", "Напьер", "user@mail.com", 28, user));
         }
     }
 }
